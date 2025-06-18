@@ -1,4 +1,4 @@
-# 🍅 Deteksi Kualitas Buah Tomat dengan YOLOv8 + Streamlit
+# 🍅 TomaTec (Deteksi Kualitas Buah Tomat dengan YOLOv12 + Streamlit)
 
 Aplikasi berbasis web untuk mendeteksi **kualitas buah tomat** (Grade A, B, C) menggunakan model **YOLOv12** dan dibangun dengan framework **Streamlit**.  
 Model ini dilatih melalui dataset morfologi fisik buah tomat dan di-deploy agar dapat digunakan dengan mudah oleh pengguna.
