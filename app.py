@@ -19,19 +19,29 @@ st.set_page_config(page_title="Deteksi Kualitas Tomat", layout="centered")
 st.title("🍅 Deteksi Kualitas Buah Tomat (Grade A, B, C)")
 st.write("Upload gambar tomat, dan sistem akan mendeteksi kualitasnya.")
 
-# Load model
-model = YOLO(MODEL_PATH)
+if not os.path.exists(MODEL_PATH) or os.path.getsize(MODEL_PATH) < 10000:
+    st.error("❌ Model gagal diunduh atau file corrupt.")
+else:
+    model = YOLO(MODEL_PATH)
 
 # Upload gambar
-uploaded_file = st.file_uploader("Upload Gambar Tomat", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Upload Gambar Tomat", type=["jpg", "jpeg", "png", "heic"])
+
+from PIL import Image, UnidentifiedImageError
 
 if uploaded_file is not None:
-    img = Image.open(uploaded_file)
+    try:
+        img = Image.open(uploaded_file)
+    except UnidentifiedImageError:
+        st.error("❌ Format gambar tidak didukung. Ubah ke .jpg, .jpeg, atau .png dulu ya!")
+        st.stop()
+
     st.image(img, caption="Gambar yang Diupload", use_column_width=True)
 
     with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
         img.save(temp_file.name)
         results = model(temp_file.name)
+
 
         for r in results:
             r.save(filename="hasil.jpg")
