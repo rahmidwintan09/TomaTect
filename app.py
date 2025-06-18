@@ -129,7 +129,7 @@ TomaTect juga menyediakan fitur multi-user login, serta tampilan UI yang menyesu
 
 def detect_page():
     st.title("🍅 TomaTect: Deteksi Kualitas Tomat")
-    st.caption("Upload gambar tomat untuk dideteksi.")
+    st.caption("Deteksi Tomat Sekarang!")
     MODEL_URL  = "https://drive.google.com/file/d/1ZE6fp6XCdQt1EHQLCfZkcVYKNr9-2RdD/view?usp=sharing"
     MODEL_PATH = "best.pt"
     if st.session_state.model is None:
