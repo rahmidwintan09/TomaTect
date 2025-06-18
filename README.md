@@ -31,9 +31,11 @@ Klik link berikut untuk mencoba aplikasinya secara langsung:
 ---
 
 ## Struktur File
-├── app.py # Streamlit app
-├── requirements.txt # Daftar dependensi
-├── best_fine_tune.pt # Model YOLOv8 (via GDrive)
+   ├── app.py # Streamlit app
+   
+   ├── requirements.txt # Daftar dependensi
+   
+   ├── best_fine_tune.pt # Model YOLOv8 (via GDrive)
 
 
 ---
