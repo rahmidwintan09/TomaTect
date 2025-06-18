@@ -186,19 +186,12 @@ def detect_page():
         st.download_button(f"Download Gambar – {uploaded.name}",
                            buf.getvalue(), f"hasil_{uploaded.name}", "image/jpeg")
 
-        # ── tambahkan ke PDF (gambar + teks dalam 1 halaman) ──
+               # ── tambahkan ke PDF (tulisan di atas gambar) ──
         pdf.add_page()
         pdf.set_font("Arial", size=10)
 
-        # gambar ditaruh di bagian atas, dibatasi tingginya agar muat
-        img_path = f"{temp_path}_annot.jpg"
-        annotated.save(img_path)
-
-        # pakai w=170, h=140 agar tidak mendorong teks ke halaman baru
-        pdf.image(img_path, x=20, y=10, w=170, h=140)
-
-        # tulis teks deteksi di bawah gambar
-        pdf.set_xy(10, 155)  # posisi Y: 10 + tinggi gambar 140 + margin
+        # tulis info deteksi di bagian atas
+        pdf.set_xy(10, 10)
         pdf.multi_cell(0, 8,
             f"[{idx}] {uploaded.name}\n"
             f"Grade A : {a}   Grade B : {b}   Grade C : {c}\n"
@@ -206,8 +199,16 @@ def detect_page():
             f"Pengguna : {st.session_state.username}"
         )
 
+        # kemudian simpan dan tampilkan gambar hasil anotasi
+        img_path = f"{temp_path}_annot.jpg"
+        annotated.save(img_path)
+
+        # posisi gambar dimulai setelah teks (misal mulai dari Y = 50)
+        pdf.image(img_path, x=20, y=55, w=170, h=140)
+
         os.remove(img_path)
         os.remove(temp_path)
+
 
 
     # tombol download PDF gabungan
@@ -237,4 +238,3 @@ elif st.session_state.page == "main":
     main_app()
 else:
     st.session_state.page = "login"; login()
-
