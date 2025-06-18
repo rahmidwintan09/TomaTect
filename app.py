@@ -166,7 +166,10 @@ def detect_page():
     buf = io.BytesIO(); annotated.save(buf, format="JPEG")
     st.download_button(f"Download Gambar - {uploaded.name}", buf.getvalue(), f"hasil_{uploaded.name}", "image/jpeg")
     
-    df = FPDF(); pdf.add_page(); pdf.set_font("Arial", size=12)
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
     pdf.cell(0, 10, "Laporan Deteksi TomaTect", ln=1)
     pdf.cell(0, 10, f"Pengguna : {st.session_state.username}", ln=1)
     pdf.cell(0, 10, f"Tanggal  : {datetime.datetime.now():%d/%m/%Y %H:%M}", ln=1)
