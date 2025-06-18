@@ -46,9 +46,11 @@ Klik link berikut untuk mencoba aplikasinya secara langsung:
    cd NAMA-REPO
 
 2. Install Dependensi
+   ```bash
    pip install -r requirements.txt
 
-3. Jalankan Aplikasi
+4. Jalankan Aplikasi
+   ```bash
    streamlit run app.py
 
 ## Dataset
