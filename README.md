@@ -30,5 +30,30 @@ Klik link berikut untuk mencoba aplikasinya secara langsung:
 
 ---
 
-## 📁 Struktur File
+## Struktur File
+├── app.py # Streamlit app
+├── requirements.txt # Daftar dependensi
+├── best_fine_tune.pt # Model YOLOv8 (via GDrive)
 
+
+---
+
+## ⚙️ Cara Menjalankan (Lokal)
+
+1. Clone repo ini:
+   ```bash
+   git clone https://github.com/USERNAME/NAMA-REPO.git
+   cd NAMA-REPO
+
+2. Install Dependensi
+   pip install -r requirements.txt
+
+3. Jalankan Aplikasi
+   streamlit run app.py
+
+## Dataset
+Model dilatih menggunakan dataset deteksi buah tomat yang telah dikurasi berdasarkan kriteria morfologi kualitas.
+Untuk keperluan pengujian dan evaluasi, model ini di-fine-tune agar lebih akurat mendeteksi kualitas secara visual.
+
+## Kontributor
+Proyek ini dikembangkan oleh Rahmi Dwi Intan, mahasiswi Informatika, dengan fokus pada penerapan Computer Vision di bidang pertanian cerdas.
