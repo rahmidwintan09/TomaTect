@@ -128,62 +128,63 @@ TomaTect juga menyediakan fitur multi-user login, serta tampilan UI yang menyesu
     """)
 
 def detect_page():
-    st.title("🍅 TomaTect: Deteksi Kualitas Tomat")
-    st.caption("Deteksi Tomat Sekarang!")
-    MODEL_URL  = "https://drive.google.com/file/d/1ZE6fp6XCdQt1EHQLCfZkcVYKNr9-2RdD/view?usp=sharing"
-    MODEL_PATH = "best.pt"
-    if st.session_state.model is None:
-        if not os.path.exists(MODEL_PATH):
-            with st.spinner("Mengunduh model…"):
-                gdown.download(MODEL_URL, MODEL_PATH, quiet=False, fuzzy=True)
-        st.session_state.model = YOLO(MODEL_PATH)
-        st.session_state.label_names = st.session_state.model.names
+    st.title("🍅 TomaTect: Deteksi Kualitas Tomat")
+    st.caption("Deteksi Tomat Sekarang!")
+    MODEL_URL  = "https://drive.google.com/file/d/1ZE6fp6XCdQt1EHQLCfZkcVYKNr9-2RdD/view?usp=sharing"
+    MODEL_PATH = "best.pt"
+    if st.session_state.model is None:
+        if not os.path.exists(MODEL_PATH):
+            with st.spinner("Mengunduh model…"):
+                gdown.download(MODEL_URL, MODEL_PATH, quiet=False, fuzzy=True)
+        st.session_state.model = YOLO(MODEL_PATH)
+        st.session_state.label_names = st.session_state.model.names
 
-    model, NAMES = st.session_state.model, st.session_state.label_names
-    uploaded_files = st.file_uploader("Upload Gambar", type=["jpg","jpeg","png","heic"], accept_multiple_files=True)
-    if not uploaded_files: return
+    model, NAMES = st.session_state.model, st.session_state.label_names
+    uploaded_files = st.file_uploader("Upload Gambar", type=["jpg","jpeg","png","heic"], accept_multiple_files=True)
+    if not uploaded_files: return
 
-    for uploaded in uploaded_files:
-        st.markdown(f"### 📷 {uploaded.name}")
-        try:
-            img = Image.open(uploaded).convert("RGB")
-        except UnidentifiedImageError:
-            st.error("Format tidak didukung."); continue
+    for uploaded in uploaded_files:
+        st.markdown(f"### 📷 {uploaded.name}")
+        try:
+            img = Image.open(uploaded).convert("RGB")
+        except UnidentifiedImageError:
+            st.error("Format tidak didukung."); continue
 
-        st.image(img, caption="Gambar Asli", use_container_width=True)
+        st.image(img, caption="Gambar Asli", use_container_width=True)
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tf:
-            img.save(tf.name); temp_path = tf.name
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tf:
+            img.save(tf.name); temp_path = tf.name
 
-        r = model(temp_path)[0]
-        annotated = Image.fromarray(r.plot()[..., ::-1])
-        st.image(annotated, caption="Hasil Deteksi", use_container_width=True)
+        r = model(temp_path)[0]
+        annotated = Image.fromarray(r.plot()[..., ::-1])
+        st.image(annotated, caption="Hasil Deteksi", use_container_width=True)
 
-        cls = [NAMES[int(i)] for i in (r.boxes.cls.tolist() if r.boxes else [])]
-        a,b,c = cls.count("A"), cls.count("B"), cls.count("C")
-        col1,col2,col3 = st.columns(3); col1.metric("Grade A", a); col2.metric("Grade B", b); col3.metric("Grade C", c)
+        cls = [NAMES[int(i)] for i in (r.boxes.cls.tolist() if r.boxes else [])]
+        a,b,c = cls.count("A"), cls.count("B"), cls.count("C")
+        col1,col2,col3 = st.columns(3); col1.metric("Grade A", a); col2.metric("Grade B", b); col3.metric("Grade C", c)
 
-        buf = io.BytesIO(); annotated.save(buf, format="JPEG")
-        st.download_button(f"Download Gambar - {uploaded.name}", buf.getvalue(), f"hasil_{uploaded.name}", "image/jpeg")
-
-        pdf = FPDF(); pdf.add_page(); pdf.set_font("Arial", size=12)
-        pdf.cell(0, 10, "Laporan Deteksi TomaTect", ln=1)
-        pdf.cell(0, 10, f"Pengguna : {st.session_state.username}", ln=1)
-        pdf.cell(0, 10, f"Tanggal  : {datetime.datetime.now():%d/%m/%Y %H:%M}", ln=1)
-        pdf.cell(0, 10, f"Grade A  : {a}", ln=1)
-        pdf.cell(0, 10, f"Grade B  : {b}", ln=1)
-        pdf.cell(0, 10, f"Grade C  : {c}", ln=1)
-
-        img_path = f"{temp_path}_annot.jpg"; annotated.save(img_path); pdf.image(img_path, w=100); os.remove(img_path)
-        pdf_bytes = pdf.output(dest="S").encode("latin1")
-        st.download_button(f"Download PDF - {uploaded.name}", pdf_bytes, f"laporan_{uploaded.name}.pdf", "application/pdf")
-        os.remove(temp_path)
+    buf = io.BytesIO(); annotated.save(buf, format="JPEG")
+    st.download_button(f"Download Gambar - {uploaded.name}", buf.getvalue(), f"hasil_{uploaded.name}", "image/jpeg")
+    
+    df = FPDF(); pdf.add_page(); pdf.set_font("Arial", size=12)
+    pdf.cell(0, 10, "Laporan Deteksi TomaTect", ln=1)
+    pdf.cell(0, 10, f"Pengguna : {st.session_state.username}", ln=1)
+    pdf.cell(0, 10, f"Tanggal  : {datetime.datetime.now():%d/%m/%Y %H:%M}", ln=1)
+    pdf.cell(0, 10, f"Grade A  : {a}", ln=1)
+    pdf.cell(0, 10, f"Grade B  : {b}", ln=1)
+    pdf.cell(0, 10, f"Grade C  : {c}", ln=1)
+    
+    
+    img_path = f"{temp_path}_annot.jpg"; annotated.save(img_path); pdf.image(img_path, w=100); os.remove(img_path)
+    pdf_bytes = pdf.output(dest="S").encode("latin1")
+    st.download_button(f"Download PDF - {uploaded.name}", pdf_bytes, f"laporan_{uploaded.name}.pdf", "application/pdf")
+    os.remove(temp_path)
 
 
 def main_app():
     with st.sidebar:
         st.markdown(f"👤 **{st.session_state.username}**")
-        st.session_state.sub_page = st.radio("Menu", ["Deteksi", "Tentang"])
+        st.session_state.sub_page = st.radio("Navigasi", ["Deteksi", "Tentang"])
         if st.button("Logout"):
             st.session_state.update(logged_in=False, page="login", username="")
             force_rerun()
