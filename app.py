@@ -6,23 +6,24 @@ import gdown
 import os
 
 # === SETUP GDRIVE ===
-MODEL_URL = "https://drive.google.com/file/d/1rmnWEytbPOrRymJUeohSykxnJG01-tIH/view?usp=sharing"  
-MODEL_PATH = "/content/drive/MyDrive/KULIAH/PI RAHMI/best_fine_tune.pt"
+MODEL_URL = "https://drive.google.com/uc?id=1ZE6fp6XCdQt1EHQLCfZkcVYKNr9-2RdD"
+MODEL_PATH = "best.pt"
 
-# Download model jika belum ada
 if not os.path.exists(MODEL_PATH):
-    with st.spinner("Mengunduh model..."):
+    with st.spinner("🔄 Mengunduh model dari Google Drive..."):
         gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
+
+# --- Coba load model ---
+try:
+    model = YOLO(MODEL_PATH)
+except Exception as e:
+    st.error(f"❌ Gagal memuat model: {e}")
+    st.stop()
 
 # === APLIKASI ===
 st.set_page_config(page_title="Deteksi Kualitas Tomat", layout="centered")
 st.title("🍅 Deteksi Kualitas Buah Tomat (Grade A, B, C)")
 st.write("Upload gambar tomat, dan sistem akan mendeteksi kualitasnya.")
-
-if not os.path.exists(MODEL_PATH) or os.path.getsize(MODEL_PATH) < 10000:
-    st.error("❌ Model gagal diunduh atau file corrupt.")
-else:
-    model = YOLO(MODEL_PATH)
 
 # Upload gambar
 uploaded_file = st.file_uploader("Upload Gambar Tomat", type=["jpg", "jpeg", "png", "heic"])
