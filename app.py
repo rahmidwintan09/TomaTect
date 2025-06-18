@@ -134,7 +134,7 @@ def detect_page():
     MODEL_URL  = "https://drive.google.com/file/d/1ZE6fp6XCdQt1EHQLCfZkcVYKNr9-2RdD/view?usp=sharing"
     MODEL_PATH = "best.pt"
 
-    # ――― load model sekali saja ―――
+    # ── load model sekali saja ──
     if st.session_state.model is None:
         if not os.path.exists(MODEL_PATH):
             with st.spinner("Mengunduh model…"):
@@ -144,7 +144,7 @@ def detect_page():
 
     model, NAMES = st.session_state.model, st.session_state.label_names
 
-    # ――― file uploader: multi ―――
+    # uploader multi-file
     uploaded_files = st.file_uploader(
         "Upload Gambar", type=["jpg", "jpeg", "png", "heic"],
         accept_multiple_files=True
@@ -152,11 +152,10 @@ def detect_page():
     if not uploaded_files:
         return
 
-    # ――― siapkan PDF gabungan ―――
+    # PDF gabungan
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    # ――― proses tiap gambar ―――
     for idx, uploaded in enumerate(uploaded_files, 1):
         st.markdown(f"### 📷 {uploaded.name}")
 
@@ -164,59 +163,52 @@ def detect_page():
             img = Image.open(uploaded).convert("RGB")
         except UnidentifiedImageError:
             st.error("Format tidak didukung.");  continue
-
         st.image(img, caption="Gambar Asli", use_container_width=True)
 
-        # simpan sementara utk inferensi
+        # simpan sementara > inferensi
         with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tf:
             img.save(tf.name)
             temp_path = tf.name
 
-        # inferensi YOLO
         r = model(temp_path)[0]
         annotated = Image.fromarray(r.plot()[..., ::-1])
         st.image(annotated, caption="Hasil Deteksi", use_container_width=True)
 
         # hitung grade
-        cls  = [NAMES[int(i)] for i in (r.boxes.cls.tolist() if r.boxes else [])]
+        cls = [NAMES[int(i)] for i in (r.boxes.cls.tolist() if r.boxes else [])]
         a, b, c = cls.count("A"), cls.count("B"), cls.count("C")
         col1, col2, col3 = st.columns(3)
         col1.metric("Grade A", a); col2.metric("Grade B", b); col3.metric("Grade C", c)
 
-        # tombol download gambar individual (opsional)
+        # tombol download gambar individual
         buf = io.BytesIO()
         annotated.save(buf, format="JPEG")
-        st.download_button(
-            f"Download Gambar – {uploaded.name}",
-            buf.getvalue(),
-            f"hasil_{uploaded.name}",
-            "image/jpeg"
+        st.download_button(f"Download Gambar – {uploaded.name}",
+                           buf.getvalue(), f"hasil_{uploaded.name}", "image/jpeg")
+
+        # ── tambahkan ke PDF (gambar & teks dalam 1 halaman) ──
+        # hitung tinggi gambar (mm) agar tulisan ditempatkan tepat di bawah
+        img_w_px, img_h_px = annotated.size
+        img_w_mm = 170  # lebar di PDF
+        img_h_mm = img_h_px * img_w_mm / img_w_px
+
+        pdf.add_page()
+        pdf.image(annotated, x=10, y=10, w=img_w_mm)          # gambar
+        pdf.set_xy(10, 10 + img_h_mm + 3)                     # posisi teks
+        pdf.set_font("Arial", size=10)
+        pdf.multi_cell(0, 8,
+            f"[{idx}] {uploaded.name}\n"
+            f"Grade A : {a}   Grade B : {b}   Grade C : {c}\n"
+            f"Tanggal  : {datetime.datetime.now():%d/%m/%Y %H:%M}\n"
+            f"Pengguna : {st.session_state.username}"
         )
 
-        # ――― masukkan ke PDF gabungan ―――
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        pdf.cell(0, 10, f"[{idx}] {uploaded.name}", ln=1)
-        pdf.cell(0, 10, f"Grade A: {a}   Grade B: {b}   Grade C: {c}", ln=1)
-        pdf.cell(0, 10, f"Tanggal   : {datetime.datetime.now():%d/%m/%Y %H:%M}", ln=1)
-        pdf.cell(0, 10, f"Pengguna  : {st.session_state.username}", ln=1)
-        pdf.ln(5)
-
-        # simpan anotasi ke file temp lalu tempel ke PDF
-        img_path = f"{temp_path}_annot.jpg"
-        annotated.save(img_path)
-        pdf.image(img_path, w=170)        # skala agar muat di halaman
-        os.remove(img_path)
         os.remove(temp_path)
 
-    # ――― tombol download PDF gabungan ―――
+    # tombol download PDF gabungan
     pdf_bytes = pdf.output(dest="S").encode("latin1")
-    st.download_button(
-        "📄 Download Semua Laporan (PDF)",
-        pdf_bytes,
-        "laporan_tomatect_semua.pdf",
-        "application/pdf"
-    )
+    st.download_button("📄 Download Laporan (PDF)",
+                       pdf_bytes, "laporan_tomatect_semua.pdf", "application/pdf")
 
 
 
