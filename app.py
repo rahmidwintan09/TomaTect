@@ -6,8 +6,8 @@ import gdown
 import os
 
 # === SETUP GDRIVE ===
-MODEL_URL = "https://drive.google.com/file/d/1tR_PtsJiQXOAnX5WLgnE_4uOEEJwG4PH/view?usp=sharing"  
-MODEL_PATH = "best_fine_tune.pt"
+MODEL_URL = "https://drive.google.com/file/d/1rmnWEytbPOrRymJUeohSykxnJG01-tIH/view?usp=sharing"  
+MODEL_PATH = "/content/drive/MyDrive/KULIAH/PI RAHMI/best_fine_tune.pt"
 
 # Download model jika belum ada
 if not os.path.exists(MODEL_PATH):
