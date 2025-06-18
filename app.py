@@ -171,7 +171,7 @@ def detect_page():
 def main_app():
     with st.sidebar:
         st.markdown(f"👤 **{st.session_state.username}**")
-        st.session_state.sub_page = st.radio("Navigasi", ["Deteksi", "Tentang"])
+        st.session_state.sub_page = st.radio("Menu", ["Deteksi", "Tentang"])
         if st.button("Logout"):
             st.session_state.update(logged_in=False, page="login", username="")
             force_rerun()
