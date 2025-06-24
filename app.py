@@ -1,4 +1,3 @@
-
 import streamlit as st
 from PIL import Image, UnidentifiedImageError
 from ultralytics import YOLO
@@ -59,7 +58,7 @@ def force_rerun():
     else:
         st.experimental_rerun()
 
-st.set_page_config(page_title="🍅 TomaTect: Deteksi Kualitas Tomat", layout="centered")
+st.set_page_config(page_title="TomaTect: Deteksi Kualitas Tomat", layout="centered")
 
 # ………………………………………………………………………………………………………… 
 # ↓↓↓ SELURUH BAGIAN LOGIN / SIGNUP / DETEKSI / PDF
@@ -99,15 +98,16 @@ def signup():
 
 def login():
     st.title("Login TomaTect")
-    u = st.text_input("Username")
-    p = st.text_input("Password", type="password")
-    if st.button("Login"):
+    u = st.text_input("Username", key="username_input")
+    p = st.text_input("Password", type="password", key="password_input")
+    if st.button("Login", key="login_button"):
         if u in users and users[u] == p:
             st.session_state.update(logged_in=True, username=u, page="main")
             force_rerun()
         else:
             st.error("Username / Password salah.")
-    st.button("Belum punya akun? Daftar", on_click=lambda: st.session_state.update(page="signup"))
+    st.button("Belum punya akun? Daftar", key="signup_button", on_click=lambda: st.session_state.update(page="signup"))
+
 
 def about_page():
     st.title("Tingkat Kematangan Tomat")
@@ -118,7 +118,7 @@ def about_page():
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.image("C:\Rahmi\kuliah\SEMESTER 6\PI Rahmi\DATASET\d5300022417f98c2766d3b6b1282.png", caption="Matang", use_container_width=True)
+        st.image("https://raw.githubusercontent.com/rahmidwintan/TomatEct/main/images/matang.png", caption="Matang", use_container_width=True)
         st.markdown("""
         **Matang (Grade A)**  
         - Warna merah merata  
@@ -127,7 +127,7 @@ def about_page():
         """)
 
     with col2:
-        st.image("C:\Rahmi\kuliah\SEMESTER 6\PI Rahmi\DATASET\879d5fea6405226d84f43f2bfa8d1f4b.png", caption="Setengah Matang", use_container_width=True)
+        st.image("https://raw.githubusercontent.com/rahmidwintan/TomatEct/main/images/setengah_matang.png", caption="Matang", use_container_width=True)
         st.markdown("""
         **Setengah Matang (Grade B)**  
         - Warna merah-kuning  
@@ -136,7 +136,7 @@ def about_page():
         """)
 
     with col3:
-        st.image("C:\Rahmi\kuliah\SEMESTER 6\PI Rahmi\DATASET\9c3bc2101bacfee1f48aaa76fcd7bc4b.png", caption="Mentah", use_container_width=True)
+        st.image("https://raw.githubusercontent.com/rahmidwintan/TomatEct/main/images/mentah.png", caption="Matang", use_container_width=True)
         st.markdown("""
         **Mentah (Grade C)**  
         - Warna hijau mendominasi  
@@ -146,6 +146,7 @@ def about_page():
 
     st.write("---")
     st.info("Klasifikasi ini digunakan sebagai dasar untuk deteksi otomatis kualitas tomat dalam aplikasi TomaTect.")
+
 
 
 
@@ -242,6 +243,7 @@ def detect_page():
 
 def main_app():
     with st.sidebar:
+        st.markdown(f"Username")
         st.markdown(f"👤 **{st.session_state.username}**")
         st.session_state.sub_page = st.radio("Menu", ["Deteksi", "Tentang Tomat"])
         if st.button("Logout"):
